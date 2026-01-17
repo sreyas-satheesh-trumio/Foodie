@@ -10,7 +10,7 @@ public class MenuItemsController : ControllerBase
         _menuItemService = menuItemService;
     }
 
-    [HttpPost("item")]
+    [HttpPost("items")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemCreate(MenuItemCreateDto menuItem)
     {
         var res = _menuItemService.CreateAsync(menuItem);
@@ -19,7 +19,7 @@ public class MenuItemsController : ControllerBase
         return Ok(res);
     }
 
-    [HttpPut("item/{id}")]
+    [HttpPut("items/{id}")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemUpdate(Guid id, MenuItemUpdateDto menuItem)
     {
         var res = _menuItemService.UpdateAsync(id, menuItem);
@@ -28,7 +28,7 @@ public class MenuItemsController : ControllerBase
         return Ok(res);
     }
 
-    [HttpDelete("item/{id}")]
+    [HttpDelete("items/{id}")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemUpdate(Guid id)
     {
         var res = _menuItemService.DeleteAsync(id);
@@ -37,7 +37,7 @@ public class MenuItemsController : ControllerBase
         return Ok(res);
     }
 
-    [HttpGet("item/{id}")]
+    [HttpGet("items/{id}")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemGet(Guid id)
     {
         var res = _menuItemService.GetAsync(id);
@@ -46,7 +46,7 @@ public class MenuItemsController : ControllerBase
         return Ok(res);
     }
 
-    [HttpGet("item")]
+    [HttpGet("items")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemGetAll(MenuItemFilterDto filter)
     {
         var res = _menuItemService.GetAllAsync(filter);

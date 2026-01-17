@@ -15,7 +15,12 @@ public class OrderService : IOrdersService
         throw new NotImplementedException();
     }
 
-    public Task<OrderResponseDto?> GetAllForSellerAsync(OrderStatusUpdateDto status)
+    public Task<OrderResponseDto> GetAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<OrderResponseDto?> StatusUpdateAsync(OrderStatusUpdateDto status)
     {
         throw new NotImplementedException();
     }
