@@ -1,4 +1,3 @@
-```md
 # 🍔 Foodie – Simple Food Ordering App
 
 Foodie is a simple food ordering system built with **.NET 10**, **ASP.NET Web API**, and **Blazor WebAssembly**.  
