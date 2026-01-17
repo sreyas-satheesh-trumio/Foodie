@@ -11,37 +11,47 @@ public class OrdersController : ControllerBase
         _ordersService = ordersService;
     }
 
-    [HttpPost("/orders")]
+    [HttpPost("orders")]
     public async Task<ActionResult<OrderResponseDto>> OrderCreate(OrderCreateDto order)
     {
-        var res = _ordersService.CreateAsync(order);
+        var res = await _ordersService.CreateAsync(order);
         if (res == null) return NotFound();
 
         return Ok(res);
     }  
 
-    [HttpGet("/orders")]
+    [HttpGet("orders/{id}")]
+    public async Task<ActionResult<OrderResponseDto>> OrderGet(Guid id)
+    {
+        var res = await _ordersService.GetAsync(id);
+        if (res == null) return NotFound();
+
+        return Ok(res);
+    }
+
+    [HttpGet("orders")]
     public async Task<ActionResult<ICollection<OrderResponseDto>>> OrderGetAll()
     {
-        var res = _ordersService.GetAllAsync();
+        var res = await _ordersService.GetAllAsync();
         if (res == null) return NotFound();
 
         return Ok(res);
-    }  
+    }
 
-    [HttpGet("/orders/seller")]
+
+    [HttpGet("orders/seller")]
     public async Task<ActionResult<ICollection<OrderResponseDto>>> OrderGetAllForSeller()
     {
-        var res = _ordersService.GetAllForSellerAsync();
+        var res = await _ordersService.GetAllForSellerAsync();
         if (res == null) return NotFound();
 
         return Ok(res);
     }  
 
-    [HttpPut("/orders/status")]
+    [HttpPut("orders/status")]
     public async Task<ActionResult<OrderResponseDto>> OrderStatusUpdate(OrderStatusUpdateDto status)
     {
-        var res = _ordersService.StatusUpdateAsync(status);
+        var res = await _ordersService.StatusUpdateAsync(status);
         if (res == null) return NotFound();
 
         return Ok(res);

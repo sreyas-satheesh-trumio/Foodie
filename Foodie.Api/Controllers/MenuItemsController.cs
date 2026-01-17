@@ -13,7 +13,7 @@ public class MenuItemsController : ControllerBase
     [HttpPost("items")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemCreate(MenuItemCreateDto menuItem)
     {
-        var res = _menuItemService.CreateAsync(menuItem);
+        var res = await _menuItemService.CreateAsync(menuItem);
         if (res == null) return NotFound();
 
         return Ok(res);
@@ -22,7 +22,7 @@ public class MenuItemsController : ControllerBase
     [HttpPut("items/{id}")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemUpdate(Guid id, MenuItemUpdateDto menuItem)
     {
-        var res = _menuItemService.UpdateAsync(id, menuItem);
+        var res = await _menuItemService.UpdateAsync(id, menuItem);
         if (res == null) return NotFound();
 
         return Ok(res);
@@ -31,7 +31,7 @@ public class MenuItemsController : ControllerBase
     [HttpDelete("items/{id}")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemUpdate(Guid id)
     {
-        var res = _menuItemService.DeleteAsync(id);
+        var res = await _menuItemService.DeleteAsync(id);
         if (res == null) return NotFound();
 
         return Ok(res);
@@ -40,16 +40,16 @@ public class MenuItemsController : ControllerBase
     [HttpGet("items/{id}")]
     public async Task<ActionResult<MenuItemResponseDto>> MenuItemGet(Guid id)
     {
-        var res = _menuItemService.GetAsync(id);
+        var res = await _menuItemService.GetAsync(id);
         if (res == null) return NotFound();
 
         return Ok(res);
     }
 
     [HttpGet("items")]
-    public async Task<ActionResult<MenuItemResponseDto>> MenuItemGetAll(MenuItemFilterDto filter)
+    public async Task<ActionResult<MenuItemResponseDto>> MenuItemGetAll([FromQuery] MenuItemFilterDto filter)
     {
-        var res = _menuItemService.GetAllAsync(filter);
+        var res = await _menuItemService.GetAllAsync(filter);
         if (res == null) return NotFound();
 
         return Ok(res);
