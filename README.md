@@ -1,7 +1,3 @@
-Here’s a **simple, clean README.md** you can copy-paste directly into your project.
-
----
-
 ```md
 # 🍔 Foodie – Simple Food Ordering App
 
