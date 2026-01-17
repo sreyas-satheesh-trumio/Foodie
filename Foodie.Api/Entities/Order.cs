@@ -1,4 +1,4 @@
-public class Orders
+public class Order
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
@@ -7,4 +7,5 @@ public class Orders
     public decimal TotalPrice { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Placed;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public ICollection<OrderItem> OrderItems { get; set; } = [];
 }

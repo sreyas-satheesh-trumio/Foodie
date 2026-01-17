@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -12,7 +13,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost("orders")]
-    public async Task<ActionResult<OrderResponseDto>> OrderCreate(OrderCreateDto order)
+    public async Task<ActionResult<OrderResponseDto>> OrderCreate([FromBody] OrderCreateDto order)
     {
         var res = await _ordersService.CreateAsync(order);
         if (res == null) return NotFound();
