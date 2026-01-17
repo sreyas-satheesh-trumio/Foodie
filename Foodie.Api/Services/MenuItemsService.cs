@@ -58,8 +58,6 @@ public class MenuItemService : IMenuItemsService
         Guid userId = AuthService.CustomerId;
         var query = _db.MenuItems.AsQueryable();
 
-        query = query.Where(mi => mi.IsAvailable);
-
         if (!string.IsNullOrEmpty(filter.Category))
         {
             query = query.Where(mi => mi.Category == filter.Category);
