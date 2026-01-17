@@ -1,0 +1,332 @@
+@page "/admin/menu"
+@layout AdminLayout
+@using Foodie.Web.Services
+@inject ApiClient ApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>Manage Menu - Admin - Foodie</PageTitle>
+
+<div class="p-8 bg-slate-950 text-slate-100 min-h-screen">
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+        </div>
+        <button @onclick="OpenCreateDialog"
+            class="px-6 py-3 bg-slate-600 text-white rounded-lg hover:shadow-lg transition font-semibold">
+            Add New Item
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="flex justify-center items-center py-12">
+            <div class="text-center">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400 mb-4"></div>
+                <p class="text-slate-300">Loading menu items...</p>
+            </div>
+        </div>
+    }
+    else if (menuItems.Count == 0)
+    {
+        <div class="bg-slate-900 rounded-xl shadow-md p-12 text-center border border-slate-800">
+            <div class="text-6xl mb-4"></div>
+            <h2 class="text-2xl font-bold text-white mb-4">No Menu Items</h2>
+            <button @onclick="OpenCreateDialog"
+                class="inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-semibold">
+                Add First Item
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var item in menuItems)
+            {
+                <div
+                    class="bg-slate-900 rounded-xl shadow-md border border-slate-800 overflow-hidden hover:shadow-lg transition">
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold text-white">@item.Name</h3>
+                        <p class="text-sm text-slate-300 mb-3">@item.Category</p>
+
+                        <div class="mb-4">
+                            <p class="text-2xl font-bold text-amber-400">₹@item.Price.ToString("F2")</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                @if (item.IsAvailable)
+                                {
+                                    <span
+                                        class="px-3 py-1 bg-green-500/20 text-green-300 text-xs font-semibold rounded-full">Available</span>
+                                }
+                                else
+                                {
+                                    <span
+                                        class="px-3 py-1 bg-red-500/20 text-red-300 text-xs font-semibold rounded-full">Unavailable</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button @onclick="() => OpenEditDialog(item)"
+                                class="flex-1 px-3 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition font-semibold text-sm">
+                                Edit
+                            </button>
+                            <button @onclick="() => OpenDeleteDialog(item)"
+                                class="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showCreateDialog)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full border border-slate-800">
+            <div class="bg-white px-6 py-4 text-black">
+                <h2 class="text-2xl font-bold">@(editingItem != null ? "Edit Item" : "Add New Item")</h2>
+            </div>
+
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Item Name</label>
+                        <input type="text" @bind="formName"
+                            class="w-full px-4 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Price (₹)</label>
+                        <input type="number" step="0.01" @bind="formPrice"
+                            class="w-full px-4 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Category</label>
+                        <select @bind="formCategory"
+                            class="w-full px-4 py-2 border border-slate-700 bg-slate-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <option value="Appetizers">Appetizers</option>
+                            <option value="Main Course">Main Course</option>
+                            <option value="Desserts">Desserts</option>
+                            <option value="Beverages">Beverages</option>
+                        </select>
+                    </div>
+
+                    @if (editingItem != null)
+                    {
+                        <div>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" @bind="formIsAvailable" class="w-4 h-4 rounded" />
+                                <span class="text-sm font-medium text-slate-300">Available</span>
+                            </label>
+                        </div>
+                    }
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button @onclick="CloseCreateDialog"
+                        class="flex-1 px-4 py-3 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition font-semibold">
+                        Cancel
+                    </button>
+                    <button @onclick="SaveItem" disabled="@isSubmitting"
+                        class="flex-1 px-4 py-3 bg-gradient-to-r bg-white text-black rounded-lg hover:shadow-lg transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                        @if (isSubmitting)
+                        {
+                            <span>Saving...</span>
+                        }
+                        else
+                        {
+                            <span>@(editingItem != null ? "Update" : "Create")</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showDeleteDialog && deletingItem != null)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full border border-slate-800">
+            <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 text-white">
+                <h2 class="text-2xl font-bold">Delete Item</h2>
+            </div>
+
+            <div class="p-6">
+                <p class="text-slate-300 mb-4">Are you sure you want to delete <span
+                        class="font-bold text-white">@deletingItem.Name</span>? This action cannot be undone.</p>
+
+                <div class="flex gap-3">
+                    <button @onclick="CloseDeleteDialog"
+                        class="flex-1 px-4 py-3 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition font-semibold">
+                        Cancel
+                    </button>
+                    <button @onclick="ConfirmDelete" disabled="@isSubmitting"
+                        class="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                        @if (isSubmitting)
+                        {
+                            <span>Deleting...</span>
+                        }
+                        else
+                        {
+                            <span>Delete</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+}
+
+@code {
+    private List<MenuItemResponseDto> menuItems = new();
+    private bool isLoading = true;
+    private bool showCreateDialog = false;
+    private bool showDeleteDialog = false;
+    private bool isSubmitting = false;
+
+    private MenuItemResponseDto? editingItem = null;
+    private MenuItemResponseDto? deletingItem = null;
+
+    private string formName = "";
+    private decimal formPrice = 0;
+    private string formCategory = "Main Course";
+    private bool formIsAvailable = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMenuItems();
+    }
+
+    private async Task LoadMenuItems()
+    {
+        isLoading = true;
+        try
+        {
+            menuItems = await ApiClient.GetMenuItemsAsync();
+        }
+        catch (Exception)
+        {
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OpenCreateDialog()
+    {
+        editingItem = null;
+        formName = "";
+        formPrice = 0;
+        formCategory = "Main Course";
+        formIsAvailable = true;
+        showCreateDialog = true;
+    }
+
+    private void OpenEditDialog(MenuItemResponseDto item)
+    {
+        editingItem = item;
+        formName = item.Name;
+        formPrice = item.Price;
+        formCategory = item.Category;
+        formIsAvailable = item.IsAvailable;
+        showCreateDialog = true;
+    }
+
+    private void CloseCreateDialog()
+    {
+        showCreateDialog = false;
+        editingItem = null;
+    }
+
+    private async Task SaveItem()
+    {
+        if (string.IsNullOrEmpty(formName) || formPrice <= 0)
+            return;
+
+        isSubmitting = true;
+        try
+        {
+            if (editingItem != null)
+            {
+                var updateDto = new MenuItemUpdateDto
+                {
+                    Name = formName,
+                    Price = formPrice,
+                    Category = formCategory,
+                    IsAvailable = formIsAvailable
+                };
+
+                var result = await ApiClient.UpdateMenuItemAsync(editingItem.Id, updateDto);
+                if (result != null)
+                {
+                    await LoadMenuItems();
+                    CloseCreateDialog();
+                }
+            }
+            else
+            {
+                var createDto = new MenuItemCreateDto
+                {
+                    Name = formName,
+                    Price = formPrice,
+                    Category = formCategory
+                };
+
+                var result = await ApiClient.CreateMenuItemAsync(createDto);
+                if (result != null)
+                {
+                    await LoadMenuItems();
+                    CloseCreateDialog();
+                }
+            }
+        }
+        catch (Exception)
+        {
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void OpenDeleteDialog(MenuItemResponseDto item)
+    {
+        deletingItem = item;
+        showDeleteDialog = true;
+    }
+
+    private void CloseDeleteDialog()
+    {
+        showDeleteDialog = false;
+        deletingItem = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (deletingItem == null)
+            return;
+
+        isSubmitting = true;
+        try
+        {
+            var success = await ApiClient.DeleteMenuItemAsync(deletingItem.Id);
+            if (success)
+            {
+                await LoadMenuItems();
+                CloseDeleteDialog();
+            }
+        }
+        catch (Exception)
+        {
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}
