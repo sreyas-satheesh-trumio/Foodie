@@ -13,7 +13,6 @@ public class AuthService
 
     public void Login(string username, string password)
     {
-        // Dummy authentication
         if (username == "sreyas@gmail.com" && password == "sreyas@123")
         {
             _currentUser = username;

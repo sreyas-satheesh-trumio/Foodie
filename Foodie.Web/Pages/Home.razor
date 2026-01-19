@@ -144,13 +144,10 @@
 @code {
     private List<MenuItemResponseDto> menuItems = new();
     private Dictionary<Guid, int> cart = new();
-    private string searchQuery = "";
-    private string selectedCategory = "";
     private bool isLoading = true;
     private bool showOrderDialog = false;
     private bool isSubmitting = false;
     private string customerName = "";
-    private string successMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -162,10 +159,7 @@
         isLoading = true;
         try
         {
-            menuItems = await ApiClient.GetMenuItemsAsync(
-            string.IsNullOrEmpty(searchQuery) ? null : searchQuery,
-            string.IsNullOrEmpty(selectedCategory) ? null : selectedCategory
-            );
+            menuItems = await ApiClient.GetMenuItemsAsync();
         }
         catch (Exception)
         {
@@ -174,29 +168,6 @@
         {
             isLoading = false;
         }
-    }
-
-    private async Task HandleSearchInput(ChangeEventArgs e)
-    {
-        await LoadMenuItems();
-    }
-
-    private async Task HandleCategoryChange(ChangeEventArgs e)
-    {
-        await LoadMenuItems();
-    }
-
-    private async Task HandleCategorySelectChange(ChangeEventArgs e)
-    {
-        selectedCategory = e.Value?.ToString() ?? "";
-        await LoadMenuItems();
-    }
-
-    private async Task ResetFilters()
-    {
-        searchQuery = "";
-        selectedCategory = "";
-        await LoadMenuItems();
     }
 
     private void IncreaseQuantity(Guid itemId)
@@ -237,7 +208,7 @@
     {
         showOrderDialog = false;
     }
-
+    
     private async Task PlaceOrder()
     {
         if (string.IsNullOrEmpty(customerName) || cart.Count == 0)
@@ -263,9 +234,8 @@
                 Navigation.NavigateTo("/orders");
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            // Handle error
         }
         finally
         {
