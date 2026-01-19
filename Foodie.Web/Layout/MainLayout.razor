@@ -1,34 +1,72 @@
 ﻿@inherits LayoutComponentBase
+@inject Initialization initi
 @inject NavigationManager Navigation
 
-<div class="flex h-screen bg-slate-950 text-slate-100">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800">
-        <div class="p-6 border-b border-slate-800">
-            <h1 class="text-2xl font-bold text-white">Foodie</h1>
-            <p class="text-sm text-slate-400 mt-1">Customer</p>
-        </div>
-        <nav class="space-y-2 px-4 py-4">
-            <NavLink class="block px-4 py-2 rounded-lg hover:bg-slate-800 transition" href="/">
-                Browse Menu
-            </NavLink>
-            <NavLink class="block px-4 py-2 rounded-lg hover:bg-slate-800 transition" href="/orders">
-                My Orders
-            </NavLink>
-            <button @onclick="HandleLogout"
-                class="w-full mt-8 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-medium">
-                Logout
-            </button>
-        </nav>
-    </aside>
+<div @@onclick="initi.HandleMainLayoutClickEvent"
+    style="display: flex; height: 100vh; background-color: #09090b; color: #f1f5f9; overflow: hidden;">
+    <Sidebar Items="@sideBarItems" Show="@sideBarVisible" OnMenuClick="HandleMenu" BackgroundLight="#09090b"
+        BackgroundDark="#09090b" HoverBackground="#18181b" HoverForeground="white" IsSimpleSideBar="true">
+        <SidebarHeader>
+            <div
+                style="display: flex; align-items: center; gap: 0.75rem; padding: 1.25rem 1rem; border-bottom: 1px solid #27272a;">
+                <div>
+                    <h1 style="font-size: 1.5rem; font-weight: 700; color: white; margin: 0;">Foodie</h1>
+                    <p style="font-size: 0.875rem; color: #ddd; margin: 0.25rem 0 0 0;">Customer Portal</p>
+                </div>
+            </div>
+        </SidebarHeader>
+        <SidebarFooter>
+            <div style="padding: 1rem; border-top: 1px solid #27272a;">
+                <button @onclick="HandleLogout"
+                    style="width: 100%; padding: 0.5rem 1rem; background-color: #dc2626; color: white; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: background-color 0.2s;"
+                    onmouseover="this.style.backgroundColor='#b91c1c'"
+                    onmouseout="this.style.backgroundColor='#dc2626'">
+                    Logout
+                </button>
+            </div>
+        </SidebarFooter>
+    </Sidebar>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-auto bg-slate-950">
-        @Body
-    </main>
+    <div style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+        <div style="padding: 0.75rem 1rem; border-bottom: 1px solid #27272a; background-color: #09090b;">
+            <Icon Name="dock_to_right" Size="20px" Color="white" OnClick="@(() => sideBarVisible = !sideBarVisible)"
+                Tooltip="Toggle Sidebar" Style="cursor: pointer;" />
+        </div>
+
+        <main style="flex: 1; overflow-y: auto; overflow-x: hidden; background-color: #09090b;">
+            @Body
+        </main>
+    </div>
 </div>
 
 @code {
+    private bool sideBarVisible = true;
+    private SideBarItem? selectedMenu;
+
+    private List<SideBarItem> sideBarItems = [
+    new("Menu", 1, 0, "Browse Menu", "restaurant_menu"),
+new("Menu", 2, 1, "My Orders", "receipt_long"),
+];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await initi.InitializeTheme();
+    }
+
+    private void HandleMenu(SideBarItem menu)
+    {
+        selectedMenu = menu;
+
+        if (menu.Id == 1)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else if (menu.Id == 2)
+        {
+            Navigation.NavigateTo("/orders");
+        }
+    }
+
     private void HandleLogout()
     {
         Navigation.NavigateTo("/login", forceLoad: true);

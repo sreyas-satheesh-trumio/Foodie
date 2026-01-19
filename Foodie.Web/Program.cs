@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Foodie.Web;
 using Foodie.Web.Services;
+using Sysinfocus.AspNetCore.Components;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.Services.AddSysinfocus();
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
