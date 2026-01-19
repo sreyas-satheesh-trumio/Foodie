@@ -81,9 +81,9 @@ public class ApiClient
     {
         var response = await _httpClient.GetAsync("/api/orders");
         if (!response.IsSuccessStatusCode) return new();
-
-        var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<List<OrderResponseDto>>(content, _jsonOptions) ?? new();
+        
+        return await response.Content
+            .ReadFromJsonAsync<List<OrderResponseDto>>(_jsonOptions) ?? new();
     }
 
     public async Task<List<OrderResponseDto>> GetAllOrdersAsync()
@@ -92,8 +92,8 @@ public class ApiClient
 
         if (!response.IsSuccessStatusCode) return new();
 
-        var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<List<OrderResponseDto>>(content, _jsonOptions) ?? new();
+        return await response.Content
+            .ReadFromJsonAsync<List<OrderResponseDto>>(_jsonOptions) ?? new();
     }
 
     public async Task<OrderResponseDto?> GetOrderAsync(Guid id)
